@@ -2,8 +2,8 @@ package main;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Random;
 
 public class MineSweeper extends JFrame {
@@ -19,6 +19,7 @@ public class MineSweeper extends JFrame {
     private ImageIcon smileyIcon;
     private ImageIcon sadIcon;
     private ImageIcon flagIcon;
+    private ImageIcon surprisedIcon;
 
     private static final int[] I = {-1, -1, 0, 1, 1, 1, 0, -1};
     private static final int[] J = {0, 1, 1, 1, 0, -1, -1, -1};
@@ -71,19 +72,25 @@ public class MineSweeper extends JFrame {
     private void initHudPanel() {
         resetButton = new JButton();
 
-        Image scaledImage = new ImageIcon("./happyface.png")
-                .getImage().getScaledInstance(40,20, Image.SCALE_SMOOTH);
+        Image scaledImage = new ImageIcon("./images/happyface.png")
+                .getImage().getScaledInstance(20,20, Image.SCALE_SMOOTH);
         smileyIcon = new ImageIcon(scaledImage);
 
-        scaledImage = new ImageIcon("./sadface.jpg")
-                .getImage().getScaledInstance(40,20, Image.SCALE_SMOOTH);
+        scaledImage = new ImageIcon("./images/sadface.jpg")
+                .getImage().getScaledInstance(20,20, Image.SCALE_SMOOTH);
         sadIcon = new ImageIcon(scaledImage);
 
-        scaledImage = new ImageIcon("./flagImage.png")
+        scaledImage = new ImageIcon("./images/surprisedface.png")
+                .getImage().getScaledInstance(20,20, Image.SCALE_SMOOTH);
+        surprisedIcon = new ImageIcon(scaledImage);
+
+        scaledImage = new ImageIcon("./images/flag.png")
                 .getImage().getScaledInstance(140,120, Image.SCALE_SMOOTH);
         flagIcon = new ImageIcon(scaledImage);
 
+
         resetButton.setIcon(smileyIcon);
+
 
         resetButton.addActionListener(e -> initGame(matrix.length, matrix[0].length));
 
@@ -110,35 +117,33 @@ public class MineSweeper extends JFrame {
                 int row = i;
                 int column = j;
 
-                matrix[i][j].addActionListener(ev -> clickButton(row,column));
-                matrix[i][j].addMouseListener(new MouseListener() {
+                matrix[i][j].addActionListener(ev -> clickButton(row, column));
+                matrix[i][j].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
-                    }
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        if(SwingUtilities.isRightMouseButton(e)) {
-                            if(matrix[row][column].getIcon() != null) {
+                        if (e.getButton() == MouseEvent.BUTTON3) {
+                            if (matrix[row][column].getIcon() != null) {
                                 matrix[row][column].setIcon(null);
-                            } else { matrix[row][column].setIcon(flagIcon); }
+                            } else {
+                                matrix[row][column].setIcon(flagIcon);
+                            }
                         }
                     }
-
                     @Override
-                    public void mouseReleased(MouseEvent e) {}
+                    public void mousePressed(MouseEvent e) {
+                        resetButton.setIcon(surprisedIcon);
+                    }
                     @Override
-                    public void mouseEntered(MouseEvent e) {}
-                    @Override
-                    public void mouseExited(MouseEvent e) {}
+                    public void mouseReleased(MouseEvent e) {
+                        resetButton.setIcon(smileyIcon);
+                    }
                 });
+                gamePanel.revalidate();
+
+                generateMines(rows, columns);
             }
         }
-        gamePanel.revalidate();
-
-        generateMines(rows, columns);
     }
-
     private void generateMines(int rows, int columns) {
         Random random = new Random();
         minesMatrix = new boolean[rows][columns];
