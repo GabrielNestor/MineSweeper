@@ -131,8 +131,9 @@ public class MineSweeper extends JFrame {
                     }
                     @Override
                     public void mousePressed(MouseEvent e) {
-                        resetButton.setIcon(surprisedIcon);
-                    }
+                        if (matrix[row][column].isEnabled()) {
+                            resetButton.setIcon(surprisedIcon);
+                        }
                     @Override
                     public void mouseReleased(MouseEvent e) {
                         resetButton.setIcon(smileyIcon);
